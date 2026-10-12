@@ -28,7 +28,7 @@ class DocumentVerificationAgent:
         file_name = request.file_name or "document.pdf"
         policy_category = (request.policy_category or "motor").lower()
 
-        if not request.document_base64:
+        if not request.document_base64 and not request.document_text:
             return DocumentVerificationResponse(
                 status="error",
                 is_genuine=False,
@@ -46,12 +46,17 @@ class DocumentVerificationAgent:
             )
 
         try:
-            doc_bytes = DocumentExtractor.decode_base64_payload(request.document_base64)
-            extraction_res = DocumentExtractor.extract_document(doc_bytes=doc_bytes, file_name=file_name)
-
-            full_text = extraction_res.get("full_text", "")
-            header_text = extraction_res.get("header_text", "")
-            page_count = extraction_res.get("page_count", 1)
+            if request.document_text:
+                full_text = request.document_text
+                lines = [l.strip() for l in full_text.splitlines() if l.strip()]
+                header_text = "\n".join(lines[:6]) if lines else ""
+                page_count = 1
+            else:
+                doc_bytes = DocumentExtractor.decode_base64_payload(request.document_base64)
+                extraction_res = DocumentExtractor.extract_document(doc_bytes=doc_bytes, file_name=file_name)
+                full_text = extraction_res.get("full_text", "")
+                header_text = extraction_res.get("header_text", "")
+                page_count = extraction_res.get("page_count", 1)
 
             # Analyze Letterhead & Official Authority
             analysis = LetterheadVerifier.analyze_document(

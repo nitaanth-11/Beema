@@ -1,0 +1,54 @@
+name: CD Pipeline - Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    name: Deploy Backend to Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render Service Deployment
+        if: env.RENDER_HOOK != ''
+        env:
+          RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "Triggering automated deploy to Render..."
+          curl -X POST "$RENDER_HOOK"
+      
+      - name: Skip Notification If Hook Not Configured
+        if: env.RENDER_HOOK == ''
+        env:
+          RENDER_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "Notice: RENDER_DEPLOY_HOOK_URL secret not yet set in GitHub Secrets."
+          echo "To activate automatic CD, add RENDER_DEPLOY_HOOK_URL in repository Settings -> Secrets and variables -> Actions."
+
+  deploy-frontend:
+    name: Deploy Frontend to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        if: env.VERCEL_TOKEN != ''
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./frontend
+          vercel-args: '--prod'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Skip Notification If Vercel Secrets Not Configured
+        if: env.VERCEL_TOKEN == ''
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          echo "Notice: VERCEL_TOKEN secret not yet set."
+          echo "Tip: You can also connect your repository directly in the Vercel dashboard for automatic zero-config git-push deployments."

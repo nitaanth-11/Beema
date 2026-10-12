@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # 1. Beema Backend Service (FastAPI + PyTorch + PyMuPDF)
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: beema-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - ENVIRONMENT=production
+    restart: unless-stopped
+
+  # 2. Beema Policyholder Portal (Vite Dev / Staging)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: beema-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+    restart: unless-stopped

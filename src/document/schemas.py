@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 class DocumentVerificationRequest(BaseModel):
     document_base64: Optional[str] = Field(None, description="Base64 encoded PDF or document image bytes")
+    document_text: Optional[str] = Field(None, description="Direct raw text representation of document")
     file_name: str = Field("document.pdf", description="Original file name")
     policy_category: str = Field("motor", description="Insurance line: motor, health, property, life, travel, commercial")
     claimed_amount: float = Field(0.0, description="Claimed amount to cross-reference")
