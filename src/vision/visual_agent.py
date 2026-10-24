@@ -204,8 +204,8 @@ class VisualInsuranceAgent:
         if is_massive:
             rejection_msg = (
                 f"Your claim has been immediately rejected due to gross compensation inflation: "
-                f"You demanded ${request.claimed_amount:,.2f}, but fair visual repair cost is estimated at "
-                f"${cost_min:,.2f} - ${cost_max:,.2f} (Inflation Ratio: {ratio:.1f}x)."
+                f"You demanded ₹{request.claimed_amount:,.2f}, but fair visual repair cost is estimated at "
+                f"₹{cost_min:,.2f} - ₹{cost_max:,.2f} (Inflation Ratio: {ratio:.1f}x)."
             )
             logger.warning(f"Immediate rejection for claim {claim_id} due to massive cost inflation: {cost_flags}")
             return VisualAssessmentResponse(
@@ -232,13 +232,13 @@ class VisualInsuranceAgent:
         if ratio <= 1.15 and len(all_flags) == 0:
             verdict = VisualVerdict.FAST_TRACK_APPROVED
             msg = (
-                f"Visual damage verified as {tier.value}. Claimed compensation of ${request.claimed_amount:,.2f} "
-                f"matches independent repair estimate (${cost_min:,.2f} - ${cost_max:,.2f}). Approved for instant payout."
+                f"Visual damage verified as {tier.value}. Claimed compensation of ₹{request.claimed_amount:,.2f} "
+                f"matches independent repair estimate (₹{cost_min:,.2f} - ₹{cost_max:,.2f}). Approved for instant payout."
             )
         else:
             verdict = VisualVerdict.STANDARD_PROCESSING
             msg = (
-                f"Visual damage verified as {tier.value}. Claimed compensation of ${request.claimed_amount:,.2f} "
+                f"Visual damage verified as {tier.value}. Claimed compensation of ₹{request.claimed_amount:,.2f} "
                 f"routed for standard desk adjudication."
             )
 

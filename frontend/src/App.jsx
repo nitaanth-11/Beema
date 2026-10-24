@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import HomePage from "./components/HomePage";
 import CategorySelection from "./components/CategorySelection";
 import Sidebar from "./components/Sidebar";
 import TopNav from "./components/TopNav";
@@ -10,25 +11,46 @@ import PolicyCoverage from "./components/PolicyCoverage";
 import ReportsAnalytics from "./components/ReportsAnalytics";
 import ClaimHistory from "./components/ClaimHistory";
 import Settings from "./components/Settings";
-import { INITIAL_CLAIMS } from "./data/mockClaims";
+import { INITIAL_CLAIMS, SPOOFED_PERSONAS } from "./data/mockClaims";
 
 export default function App() {
+  // Spoofed persona state (Individual or Organisation)
+  const [currentPersona, setCurrentPersona] = useState(() => {
+    const saved = localStorage.getItem("beema_persona");
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return SPOOFED_PERSONAS.individual[0];
+      }
+    }
+    return SPOOFED_PERSONAS.individual[0];
+  });
+
+  // Dedicated Home Page with Big Dual Banners view state (starts on Home Page)
+  const [isHomeView, setIsHomeView] = useState(() => {
+    // If user hasn't explicitly proceeded in this session, start at Home Page
+    const sessionProceeded = sessionStorage.getItem("beema_session_proceeded");
+    return !sessionProceeded;
+  });
+
   // Category Selection state (persisted across sessions)
   const [selectedCategory, setSelectedCategory] = useState(() => {
-    return localStorage.getItem("beema_category") || null;
+    return localStorage.getItem("beema_category") || "vehicle_ind";
   });
 
   // Navigation tab state
   const [activeTab, setActiveTab] = useState("overview");
 
-  // In-memory claims ledger initialized strictly with the 1 hardcoded baseline claim
+  // In-memory claims ledger initialized with multi-segment Rupee baseline claims
   const [claims, setClaims] = useState(() => {
     const saved = localStorage.getItem("beema_claims_ledger");
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Only keep if 1 or 2 (baseline + user-filed), otherwise reset to single hardcoded claim
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed.length <= 3) {
+        // If parsed contains legacy motor category or dollar values, reseed with INITIAL_CLAIMS
+        const hasLegacy = parsed.some(c => c.category === "motor" || c.id === "CLM-MTR-2026-081");
+        if (!hasLegacy && Array.isArray(parsed) && parsed.length > 0) {
           return parsed;
         }
       } catch (e) {
@@ -49,18 +71,41 @@ export default function App() {
     localStorage.setItem("beema_claims_ledger", JSON.stringify(claims));
   }, [claims]);
 
-  // Handle category selection from Page 1
+  // Handle proceeding from Big Banner Home Page with spoofed persona
+  const handleProceedWithPersona = (persona) => {
+    setCurrentPersona(persona);
+    try {
+      localStorage.setItem("beema_persona", JSON.stringify(persona));
+      sessionStorage.setItem("beema_session_proceeded", "true");
+    } catch (e) {}
+
+    const cat = persona.defaultCategory || (persona.segment === "organisation" ? "captive_org" : "vehicle_ind");
+    setSelectedCategory(cat);
+    localStorage.setItem("beema_category", cat);
+
+    if (persona.activeClaimId) {
+      setSelectedClaimId(persona.activeClaimId);
+    }
+    setIsHomeView(false);
+    setActiveTab("overview");
+  };
+
+  // Return to Big Banner Home Page
+  const handleNavigateHome = () => {
+    setIsHomeView(true);
+  };
+
+  // Handle category selection from fallback category view
   const handleSelectCategory = (categoryId) => {
     setSelectedCategory(categoryId);
     localStorage.setItem("beema_category", categoryId);
     setActiveTab("overview");
+    setIsHomeView(false);
   };
 
-  // Change category returns user to Page 1
+  // Change category returns user to Home Page / Big Banner view
   const handleChangeCategory = () => {
-    setSelectedCategory(null);
-    localStorage.removeItem("beema_category");
-    setSelectedClaimId(null);
+    setIsHomeView(true);
   };
 
   // Select claim to inspect in LAYA decision support view
@@ -84,23 +129,18 @@ export default function App() {
   };
 
   // Claims in active category
-  // If baseline claim category doesn't match selectedCategory, align baseline claim so customer always has their 1 baseline claim:
   const currentCategoryClaims = claims.filter((c) => c.category === selectedCategory);
   const activeCategoryClaims = currentCategoryClaims.length > 0
     ? currentCategoryClaims
-    : claims.map(c => ({
-        ...c,
-        category: selectedCategory,
-        id: `CLM-${(selectedCategory || "mtr").substring(0, 3).toUpperCase()}-2026-081`
-      }));
+    : claims;
 
   const activeClaim = selectedClaimId
     ? claims.find((c) => c.id === selectedClaimId) || activeCategoryClaims[0]
     : activeCategoryClaims[0] || claims[0];
 
-  // PAGE ONE: If no category selected, render mandatory Category Selection screen
-  if (!selectedCategory) {
-    return <CategorySelection onSelectCategory={handleSelectCategory} />;
+  // PRIMARY FRONT DOOR: Big Banner Home Page with Bifurcation & User Spoofing
+  if (isHomeView) {
+    return <HomePage onProceedWithPersona={handleProceedWithPersona} />;
   }
 
   // Titles for TopNav breadcrumb (Customer Portal POV)
@@ -127,6 +167,8 @@ export default function App() {
         }}
         currentCategory={selectedCategory}
         onChangeCategory={handleChangeCategory}
+        onNavigateHome={handleNavigateHome}
+        currentPersona={currentPersona}
         claimsCount={activeCategoryClaims.length}
       />
 
@@ -136,6 +178,8 @@ export default function App() {
         <TopNav
           currentCategory={selectedCategory}
           onChangeCategory={handleChangeCategory}
+          onNavigateHome={handleNavigateHome}
+          currentPersona={currentPersona}
           activeTabTitle={TAB_TITLES[activeTab] || "My Claims Hub"}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -146,7 +190,9 @@ export default function App() {
           {activeTab === "overview" && (
             <WorkspaceDashboard
               currentCategory={selectedCategory}
-              claims={activeCategoryClaims}
+              currentPersona={currentPersona}
+              onNavigateHome={handleNavigateHome}
+              claims={claims}
               onSelectClaim={handleSelectClaim}
               onNavigateNewClaim={() => setActiveTab("new_claim")}
               searchQuery={searchQuery}
@@ -156,7 +202,9 @@ export default function App() {
           {activeTab === "all_claims" && (
             <WorkspaceDashboard
               currentCategory={selectedCategory}
-              claims={activeCategoryClaims}
+              currentPersona={currentPersona}
+              onNavigateHome={handleNavigateHome}
+              claims={claims}
               onSelectClaim={handleSelectClaim}
               onNavigateNewClaim={() => setActiveTab("new_claim")}
               searchQuery={searchQuery}
@@ -166,6 +214,7 @@ export default function App() {
           {activeTab === "new_claim" && (
             <NewClaimIntake
               currentCategory={selectedCategory}
+              currentPersona={currentPersona}
               onClaimCreated={handleClaimCreated}
               onCancel={() => setActiveTab("overview")}
             />

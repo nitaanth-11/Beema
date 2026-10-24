@@ -23,6 +23,7 @@ import {
   Plus
 } from "lucide-react";
 import { INSURANCE_CATEGORIES } from "../data/mockClaims";
+import { formatRupees, formatRupeesCompact, RUPEE_SYMBOL } from "../utils/currency";
 
 export default function DocumentVerification({ currentCategory, claims = [] }) {
   const categoryInfo = INSURANCE_CATEGORIES.find((c) => c.id === currentCategory) || INSURANCE_CATEGORIES[0];
@@ -41,9 +42,9 @@ export default function DocumentVerification({ currentCategory, claims = [] }) {
       extractedFields: [
         {
           label: "Billed / Invoiced Amount",
-          docValue: `$${(c.evidence?.repairEstimateAmount || c.claimedAmount).toFixed(2)}`,
-          claimValue: `$${c.claimedAmount.toFixed(2)}`,
-          status: Math.abs((c.evidence?.repairEstimateAmount || c.claimedAmount) - c.claimedAmount) < 50 ? "Verified Match" : "Discrepancy"
+          docValue: formatRupees(c.evidence?.repairEstimateAmount || c.claimedAmount),
+          claimValue: formatRupees(c.claimedAmount),
+          status: Math.abs((c.evidence?.repairEstimateAmount || c.claimedAmount) - c.claimedAmount) < 500 ? "Verified Match" : "Discrepancy"
         },
         {
           label: "Incident / Service Date",
@@ -92,15 +93,15 @@ export default function DocumentVerification({ currentCategory, claims = [] }) {
       type: newDocCategory,
       status: "Verified",
       size: "2.1 MB",
-      claimId: categoryClaims[0]?.id || "CLM-MTR-2026-081",
-      claimantName: "Alexander Vance",
-      claimedAmount: 2450.00,
+      claimId: categoryClaims[0]?.id || "CLM-IND-2026-081",
+      claimantName: categoryClaims[0]?.claimantName || "Rajesh Malhotra",
+      claimedAmount: 145000.00,
       incidentDate: "2026-02-15",
       extractedFields: [
         {
           label: "Billed / Invoiced Amount",
-          docValue: "$2,450.00",
-          claimValue: "$2,450.00",
+          docValue: formatRupees(145000),
+          claimValue: formatRupees(145000),
           status: "Verified Match"
         },
         {

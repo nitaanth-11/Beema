@@ -31,8 +31,8 @@ class ClaimConsistencyChecker:
                     discrepancy_type="AMOUNT_MISMATCH",
                     severity="HIGH" if diff_pct > 0.50 else "MEDIUM",
                     details=(
-                        f"Claimed payout (${claim.claim_amount:,.2f}) exceeds independent "
-                        f"repair estimate (${claim.repair_estimate_amount:,.2f}) by {diff_pct*100:.1f}%."
+                        f"Claimed payout (₹{claim.claim_amount:,.2f}) exceeds independent "
+                        f"repair estimate (₹{claim.repair_estimate_amount:,.2f}) by {diff_pct*100:.1f}%."
                     )
                 ))
                 score += 0.30 if diff_pct > 0.50 else 0.15
@@ -88,7 +88,7 @@ class ClaimConsistencyChecker:
                     score += 0.35
 
         # 4. Evidence Sufficiency Gap for Sizable Loss
-        if claim.claim_amount > 15000.0:
+        if claim.claim_amount > 200000.0:
             doc_count = claim.supporting_documents_count or 0
             if doc_count == 0:
                 findings.append(DiscrepancyFinding(
@@ -96,7 +96,7 @@ class ClaimConsistencyChecker:
                     discrepancy_type="CORROBORATION_GAP",
                     severity="MEDIUM",
                     details=(
-                        f"Claim amount of ${claim.claim_amount:,.2f} submitted with zero "
+                        f"Claim amount of ₹{claim.claim_amount:,.2f} submitted with zero "
                         f"attached invoices, photos, or corroborating documentation."
                     )
                 ))

@@ -221,10 +221,10 @@ class LetterheadVerifier:
 
         if extracted_amount is not None:
             score += 0.05
-            evidence_markers.append(f"Itemized financial sum verified in document: ${extracted_amount:,.2f}")
-            if claimed_amount > 0 and abs(claimed_amount - extracted_amount) <= 250:
+            evidence_markers.append(f"Itemized financial sum verified in document: ₹{extracted_amount:,.2f}")
+            if claimed_amount > 0 and abs(claimed_amount - extracted_amount) <= max(2500.0, claimed_amount * 0.05):
                 score += 0.05
-                evidence_markers.append(f"Financial sum matches claimant demand (${claimed_amount:,.2f}) within policy tolerance")
+                evidence_markers.append(f"Financial sum matches claimant demand (₹{claimed_amount:,.2f}) within policy tolerance")
 
         # Cap score
         authenticity_score = min(1.0, max(0.08, round(score, 3)))
@@ -360,20 +360,19 @@ class LetterheadVerifier:
     @staticmethod
     def _extract_amount(text: str) -> Optional[float]:
         """
-        Extracts highest plausible dollar invoice or estimate amount.
+        Extracts highest plausible invoice or estimate amount in Indian Rupees (₹) or USD.
         """
-        matches = re.findall(r'\$\s*([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]{2})?)', text)
+        matches = re.findall(r'(?:[₹$]|Rs\.?|INR)\s*([0-9]{1,3}(?:,[0-9]{2,3})*(?:\.[0-9]{2})?)', text, re.IGNORECASE)
         if matches:
             amounts = []
             for m in matches:
                 try:
                     val = float(m.replace(",", ""))
-                    if 50.0 <= val <= 250000.0:
+                    if 100.0 <= val <= 100000000.0:
                         amounts.append(val)
                 except ValueError:
                     continue
             if amounts:
-                # Often the total is the maximum or explicitly labeled
                 return max(amounts)
         return None
 

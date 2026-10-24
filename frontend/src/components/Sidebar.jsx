@@ -19,17 +19,29 @@ import {
   Building2,
   CheckCircle2,
   Headphones,
-  User
+  User,
+  Briefcase,
+  Trees,
+  Lock,
+  Truck,
+  Ship,
+  Home
 } from "lucide-react";
 import { INSURANCE_CATEGORIES } from "../data/mockClaims";
 
-const CATEGORY_ICONS = {
-  motor: Car,
-  health: HeartPulse,
-  life: ShieldCheck,
-  property: House,
-  travel: Plane,
-  commercial: Building2
+const ICON_MAP = {
+  Car,
+  HeartPulse,
+  ShieldCheck,
+  House,
+  Plane,
+  Building2,
+  Briefcase,
+  Trees,
+  Lock,
+  Truck,
+  Ship,
+  ShieldAlert
 };
 
 export default function Sidebar({
@@ -37,10 +49,12 @@ export default function Sidebar({
   onTabChange,
   currentCategory,
   onChangeCategory,
+  onNavigateHome,
+  currentPersona,
   claimsCount = 0
 }) {
   const categoryInfo = INSURANCE_CATEGORIES.find((c) => c.id === currentCategory) || INSURANCE_CATEGORIES[0];
-  const CategoryIcon = CATEGORY_ICONS[currentCategory] || Car;
+  const CategoryIcon = ICON_MAP[categoryInfo.icon] || Car;
 
   const NAV_ITEMS = [
     { id: "overview", label: "My Claims Hub", icon: LayoutDashboard },
@@ -67,36 +81,59 @@ export default function Sidebar({
     }}>
       {/* Brand Header */}
       <div style={{
-        padding: "18px 20px",
+        padding: "16px 18px",
         borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
         display: "flex",
         alignItems: "center",
-        gap: "10px"
+        justifyContent: "space-between"
       }}>
-        <div style={{
-          width: "32px",
-          height: "32px",
-          backgroundColor: "var(--color-accent)",
-          borderRadius: "6px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#FFF"
-        }}>
-          <Shield size={18} strokeWidth={2.5} />
-        </div>
-        <div>
-          <div style={{ fontSize: "16px", fontWeight: "700", letterSpacing: "-0.01em" }}>BEEMA</div>
-          <div style={{ fontSize: "10px", color: "#93C5FD", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: "600" }}>
-            Policyholder Portal
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{
+            width: "32px",
+            height: "32px",
+            backgroundColor: "var(--color-accent)",
+            borderRadius: "6px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#FFF"
+          }}>
+            <Shield size={18} strokeWidth={2.5} />
+          </div>
+          <div>
+            <div style={{ fontSize: "16px", fontWeight: "700", letterSpacing: "-0.01em" }}>BEEMA</div>
+            <div style={{ fontSize: "10px", color: "#93C5FD", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: "600" }}>
+              Claims Intelligence
+            </div>
           </div>
         </div>
+
+        <button
+          onClick={onNavigateHome}
+          style={{
+            background: "rgba(255, 255, 255, 0.1)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
+            borderRadius: "6px",
+            padding: "5px 8px",
+            color: "#FFFFFF",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "4px",
+            fontSize: "11px",
+            fontWeight: "600"
+          }}
+          title="Return to Big Dual Banners (Home)"
+        >
+          <Home size={12} />
+          <span>Home</span>
+        </button>
       </div>
 
       {/* Selected Category Tile */}
       <div style={{
         padding: "12px 14px",
-        margin: "12px 14px",
+        margin: "12px 14px 6px 14px",
         backgroundColor: "rgba(255, 255, 255, 0.06)",
         borderRadius: "8px",
         border: "1px solid rgba(255, 255, 255, 0.1)"
@@ -127,7 +164,7 @@ export default function Sidebar({
           </button>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
           <div style={{
             width: "24px",
             height: "24px",
@@ -139,19 +176,24 @@ export default function Sidebar({
           }}>
             <CategoryIcon size={14} color="#FFF" />
           </div>
-          <span style={{ fontSize: "13px", fontWeight: "600", color: "#F8FAFC" }}>
-            {categoryInfo.name}
-          </span>
+          <div>
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#F8FAFC" }}>
+              {categoryInfo.name}
+            </div>
+            <div style={{ fontSize: "10px", color: categoryInfo.segment === "organisation" ? "#C4B5FD" : "#86EFAC", fontWeight: "600" }}>
+              {categoryInfo.segment === "organisation" ? "🏢 Organisation" : "👤 Individual"}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Customer Quick Profile Pill */}
+      {/* Spoofed Persona Profile Pill */}
       <div style={{
         margin: "0 14px 10px 14px",
         padding: "10px 12px",
-        backgroundColor: "rgba(37, 99, 235, 0.15)",
+        backgroundColor: currentPersona?.segment === "organisation" ? "rgba(124, 58, 237, 0.2)" : "rgba(37, 99, 235, 0.2)",
         borderRadius: "6px",
-        border: "1px solid rgba(37, 99, 235, 0.3)",
+        border: currentPersona?.segment === "organisation" ? "1px solid rgba(167, 139, 250, 0.4)" : "1px solid rgba(96, 165, 250, 0.4)",
         display: "flex",
         alignItems: "center",
         gap: "10px"
@@ -159,23 +201,24 @@ export default function Sidebar({
         <div style={{
           width: "28px",
           height: "28px",
-          borderRadius: "50%",
-          backgroundColor: "#2563EB",
+          borderRadius: currentPersona?.segment === "organisation" ? "6px" : "50%",
+          backgroundColor: currentPersona?.avatarBg || "var(--color-accent)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           color: "#FFF",
-          fontWeight: "700",
-          fontSize: "11px"
+          fontWeight: "800",
+          fontSize: "11px",
+          flexShrink: 0
         }}>
-          AV
+          {currentPersona?.avatarInitials || "RM"}
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: "12px", fontWeight: "600", color: "#FFFFFF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-            Alexander Vance
+          <div style={{ fontSize: "12px", fontWeight: "700", color: "#FFFFFF", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            {currentPersona?.name || "Rajesh Malhotra"}
           </div>
-          <div style={{ fontSize: "10px", color: "#BFDBFE" }}>
-            Policy Active &bull; Tier 1
+          <div style={{ fontSize: "10px", color: currentPersona?.segment === "organisation" ? "#E9D5FF" : "#BFDBFE" }}>
+            {currentPersona?.segment === "organisation" ? "🏢 Corporate Risk Officer" : "👤 Retail Policyholder"}
           </div>
         </div>
       </div>

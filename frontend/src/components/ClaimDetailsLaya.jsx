@@ -30,9 +30,11 @@ import {
   PhoneCall,
   Sparkles,
   Camera,
-  Image as ImageIcon
+  Image as ImageIcon,
+  IndianRupee
 } from "lucide-react";
 import { BeemaAPI } from "../services/api";
+import { formatRupees, formatRupeesCompact, RUPEE_SYMBOL } from "../utils/currency";
 
 export default function ClaimDetailsLaya({
   claim,
@@ -315,6 +317,18 @@ export default function ClaimDetailsLaya({
               <h1 style={{ fontSize: "18px", fontWeight: "700", color: "var(--color-primary)", margin: 0 }}>
                 Claim {claim.id}
               </h1>
+              <span style={{
+                fontSize: "10px",
+                fontWeight: "700",
+                textTransform: "uppercase",
+                padding: "2px 8px",
+                borderRadius: "4px",
+                backgroundColor: claim.segment === "organisation" ? "#F5F3FF" : "#ECFDF5",
+                color: claim.segment === "organisation" ? "#6D28D9" : "#047857",
+                border: `1px solid ${claim.segment === "organisation" ? "#DDD6FE" : "#A7F3D0"}`
+              }}>
+                {claim.segment === "organisation" ? "🏢 Organisation" : "👤 Individual"}
+              </span>
               <span className={`badge ${claim.status === "Completed" ? "badge-success" : (claim.status === "Awaiting documents" ? "badge-warning" : "badge-info")}`}>
                 {claim.status === "Completed" ? "Approved & Paid" : claim.status}
               </span>
@@ -546,21 +560,21 @@ export default function ClaimDetailsLaya({
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "20px" }}>
                   <div style={{ backgroundColor: "#F8FAFC", padding: "14px", borderRadius: "6px", border: "1px solid var(--color-border)" }}>
-                    <div style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "600" }}>Total Claimed Loss</div>
+                    <div style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "600" }}>Total Claimed Loss (₹)</div>
                     <div style={{ fontSize: "22px", fontWeight: "700", color: "var(--color-primary)", marginTop: "4px" }}>
-                      ${claim.claimedAmount?.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      {formatRupees(claim.claimedAmount)}
                     </div>
                   </div>
                   <div style={{ backgroundColor: "#F8FAFC", padding: "14px", borderRadius: "6px", border: "1px solid var(--color-border)" }}>
-                    <div style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "600" }}>Verified Invoice Quote</div>
+                    <div style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "600" }}>Verified Invoice Quote (₹)</div>
                     <div style={{ fontSize: "22px", fontWeight: "700", color: "var(--color-secondary)", marginTop: "4px" }}>
-                      ${claim.evidence?.repairEstimateAmount ? claim.evidence.repairEstimateAmount.toLocaleString('en-US', { minimumFractionDigits: 2 }) : claim.claimedAmount?.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      {formatRupees(claim.evidence?.repairEstimateAmount || claim.claimedAmount)}
                     </div>
                   </div>
                   <div style={{ backgroundColor: "#F8FAFC", padding: "14px", borderRadius: "6px", border: "1px solid var(--color-border)" }}>
-                    <div style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "600" }}>Your Policy Deductible</div>
+                    <div style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "600" }}>Your Policy Deductible (₹)</div>
                     <div style={{ fontSize: "22px", fontWeight: "700", color: "#64748B", marginTop: "4px" }}>
-                      -${claim.deductible ? claim.deductible.toLocaleString('en-US', { minimumFractionDigits: 2 }) : "500.00"}
+                      -{formatRupees(claim.deductible || 0)}
                     </div>
                   </div>
                 </div>
@@ -681,10 +695,10 @@ export default function ClaimDetailsLaya({
                       </strong>
                     </div>
 
-                    <div style={{ padding: "8px 12px", backgroundColor: "#FFFFFF", borderRadius: "#6px", border: "1px solid var(--color-border)" }}>
+                    <div style={{ padding: "8px 12px", backgroundColor: "#FFFFFF", borderRadius: "6px", border: "1px solid var(--color-border)" }}>
                       <span style={{ color: "var(--color-text-muted)", fontSize: "11px", display: "block" }}>FAIR MARKET REPAIR BRACKET (DEEP LEARNING)</span>
                       <strong style={{ color: "#16A34A", fontSize: "13px" }}>
-                        {claim.visualAnalysis?.fairCostRange || "$1,410.00 – $3,220.00"}
+                        {claim.visualAnalysis?.fairCostRange || `${formatRupees(45000, { includeDecimals: false })} – ${formatRupees(120000, { includeDecimals: false })}`}
                       </strong>
                     </div>
 
@@ -859,7 +873,7 @@ export default function ClaimDetailsLaya({
                   <div style={{ paddingBottom: "16px" }}>
                     <div style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>{claim.filingDate} &bull; 09:32 AM</div>
                     <div style={{ fontSize: "13px", fontWeight: "600", color: "var(--color-text-main)" }}>Policy Boundaries Verified</div>
-                    <div style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>Confirmed active auto collision policy with $100k liability limits and $500 deductible.</div>
+                    <div style={{ fontSize: "12px", color: "var(--color-text-muted)" }}>Confirmed active policy coverage with statutory liability limits and deductible threshold.</div>
                   </div>
                 </div>
 

@@ -13,6 +13,7 @@ import {
   DollarSign
 } from "lucide-react";
 import { INSURANCE_CATEGORIES } from "../data/mockClaims";
+import { formatRupees } from "../utils/currency";
 
 export default function ClaimHistory({ currentCategory, claims = [], onSelectClaim }) {
   const categoryInfo = INSURANCE_CATEGORIES.find((c) => c.id === currentCategory) || INSURANCE_CATEGORIES[0];
@@ -71,7 +72,7 @@ export default function ClaimHistory({ currentCategory, claims = [], onSelectCla
               <th>Incident Type</th>
               <th>Date of Incident</th>
               <th>Date Filed</th>
-              <th>Claimed Amount</th>
+              <th>Claimed Amount (₹)</th>
               <th>LAYA Verification</th>
               <th>Settlement Status</th>
               <th style={{ textAlign: "right" }}>Action</th>
@@ -88,7 +89,7 @@ export default function ClaimHistory({ currentCategory, claims = [], onSelectCla
                 <td>{claim.incidentDate}</td>
                 <td>{claim.filingDate}</td>
                 <td style={{ fontWeight: "700" }}>
-                  ${claim.claimedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  {formatRupees(claim.claimedAmount)}
                 </td>
                 <td>
                   <span style={{

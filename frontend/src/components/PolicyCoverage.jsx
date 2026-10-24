@@ -17,6 +17,7 @@ import {
   Info
 } from "lucide-react";
 import { INSURANCE_CATEGORIES, INITIAL_POLICIES } from "../data/mockClaims";
+import { formatRupees, formatRupeesCompact, RUPEE_SYMBOL } from "../utils/currency";
 
 export default function PolicyCoverage({ currentCategory }) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -189,15 +190,15 @@ export default function PolicyCoverage({ currentCategory }) {
               {/* Financial Boundaries */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "14px", paddingTop: "14px", borderTop: "1px solid var(--color-border)" }}>
                 <div style={{ backgroundColor: "#F8FAFC", padding: "14px", borderRadius: "6px", border: "1px solid var(--color-border)" }}>
-                  <span style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "600" }}>Maximum Coverage Limit</span>
+                  <span style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "600" }}>Maximum Coverage Limit (₹)</span>
                   <div style={{ fontSize: "20px", fontWeight: "700", color: "var(--color-primary)", marginTop: "2px" }}>
-                    ${activePolicy.coverageLimit?.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {formatRupees(activePolicy.coverageLimit)}
                   </div>
                 </div>
                 <div style={{ backgroundColor: "#F8FAFC", padding: "14px", borderRadius: "6px", border: "1px solid var(--color-border)" }}>
-                  <span style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "600" }}>Your Policy Deductible</span>
+                  <span style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "600" }}>Your Policy Deductible (₹)</span>
                   <div style={{ fontSize: "20px", fontWeight: "700", color: "var(--color-secondary)", marginTop: "2px" }}>
-                    ${activePolicy.deductible?.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    {formatRupees(activePolicy.deductible)}
                   </div>
                 </div>
                 <div style={{ backgroundColor: "#F8FAFC", padding: "14px", borderRadius: "6px", border: "1px solid var(--color-border)" }}>

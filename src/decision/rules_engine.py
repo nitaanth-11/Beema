@@ -33,15 +33,15 @@ class InsuranceRulesEngine:
                 rule_name="Claim Payout Below Deductible",
                 severity="HIGH",
                 description=(
-                    f"Claimed amount (${claim.claim_amount:,.2f}) is less than or equal to "
-                    f"policy deductible (${claim.deductible:,.2f}). Loss is completely self-insured."
+                    f"Claimed amount (₹{claim.claim_amount:,.2f}) is less than or equal to "
+                    f"policy deductible (₹{claim.deductible:,.2f}). Loss is completely self-insured."
                 )
             ))
             cumulative_penalty += 0.25
 
         # Rule 2: Inception Latency / New Policy Outsized Claim
-        # Core insurance red flag: newly opened policy (< 1 yr) immediately filing > $10,000
-        if claim.policyholder_tenure_years < 1.0 and claim.claim_amount > 10000.0:
+        # Core insurance red flag: newly opened policy (< 1 yr) immediately filing > ₹5,00,000
+        if claim.policyholder_tenure_years < 1.0 and claim.claim_amount > 500000.0:
             severity = "CRITICAL" if claim.policyholder_tenure_years < 0.25 else "HIGH"
             violations.append(RuleViolation(
                 rule_id="INS_RULE_002_NEW_POLICY_HIGH_EXPOSURE",
@@ -49,7 +49,7 @@ class InsuranceRulesEngine:
                 severity=severity,
                 description=(
                     f"Policyholder tenure is only {claim.policyholder_tenure_years:.2f} years, "
-                    f"but filing an outsized claim of ${claim.claim_amount:,.2f}."
+                    f"but filing an outsized claim of ₹{claim.claim_amount:,.2f}."
                 )
             ))
             cumulative_penalty += 0.35 if severity == "CRITICAL" else 0.25
@@ -98,14 +98,14 @@ class InsuranceRulesEngine:
                 cumulative_penalty += 0.15
 
         # Rule 6: High Value Claim Missing Corroborating Police/Official Report
-        if claim.claim_type == "auto" and claim.claim_amount > 20000.0:
+        if claim.claim_type == "auto" and claim.claim_amount > 200000.0:
             if claim.police_report_available is False:
                 violations.append(RuleViolation(
                     rule_id="INS_RULE_006_HIGH_VALUE_NO_POLICE_REPORT",
                     rule_name="Major Auto Loss Without Police Report",
                     severity="HIGH",
                     description=(
-                        f"Major automobile casualty loss (${claim.claim_amount:,.2f}) reported "
+                        f"Major automobile casualty loss (₹{claim.claim_amount:,.2f}) reported "
                         f"with no official police accident report on file."
                     )
                 ))

@@ -1,7 +1,11 @@
 import os
 import torch
-import torchvision.models as models
-import torchvision.transforms as T
+try:
+    import torchvision.models as models
+    import torchvision.transforms as T
+except Exception as _tv_err:
+    models = None
+    T = None
 from typing import Tuple, Dict, Any, List
 from PIL import Image, ImageStat, ImageFilter
 from src.vision.schemas import DamageSeverityTier
@@ -21,28 +25,28 @@ class DamageScorer:
 
     COST_BRACKETS = {
         DamageSeverityTier.MINOR_COSMETIC: {
-            "min": 450.0,
-            "max": 1400.0,
-            "benchmark": 850.0,
+            "min": 15000.0,
+            "max": 45000.0,
+            "benchmark": 28000.0,
             "label": "Minor Cosmetic / Surface Damage (Paint scratches, small ding, light trim scuff)"
         },
         DamageSeverityTier.MODERATE_LOCALIZED: {
-            "min": 1400.0,
-            "max": 3800.0,
-            "benchmark": 2600.0,
+            "min": 45000.0,
+            "max": 120000.0,
+            "benchmark": 80000.0,
             "label": "Moderate Localized Damage (Bumper dent, cracked trim, single panel alignment)"
         },
         DamageSeverityTier.SEVERE_STRUCTURAL: {
-            "min": 4200.0,
-            "max": 9800.0,
-            "benchmark": 6400.0,
+            "min": 140000.0,
+            "max": 340000.0,
+            "benchmark": 220000.0,
             "label": "Severe Multi-Panel / Structural Damage (Crushed trunk, bumper bar, broken lamps)"
         },
         DamageSeverityTier.TOTAL_DESTRUCTION: {
-            "min": 18500.0,
-            "max": 65000.0,
-            "benchmark": 35000.0,
-            "label": "Catastrophic Loss / Total Destruction (Frame crumpled, axle displaced, cab crushed)"
+            "min": 500000.0,
+            "max": 2500000.0,
+            "benchmark": 1200000.0,
+            "label": "Catastrophic Loss / Total Destruction (Frame crumpled, axle displaced, chassis crushed)"
         }
     }
 
@@ -50,6 +54,10 @@ class DamageScorer:
     def _get_model(cls):
         """Lazy loader for the ResNet-18 deep visual feature extractor."""
         if cls._model is None:
+            if models is None or T is None:
+                logger.warning("torchvision is unavailable; using robust visual heuristic fallback.")
+                cls._model = False
+                return cls._model, cls._transform
             try:
                 model = models.resnet18()
                 weights_path = os.path.expanduser(r"~/.cache/torch/hub/checkpoints/resnet18-f37072fd.pth")
@@ -169,24 +177,22 @@ class DamageScorer:
         # Classification into severity tier
         if combined_index >= 0.76:
             tier = DamageSeverityTier.TOTAL_DESTRUCTION
-            base_min = 18500.0
-            base_max = 52000.0
+            base_min = 500000.0
+            base_max = 2500000.0
         elif combined_index >= 0.46:
             tier = DamageSeverityTier.SEVERE_STRUCTURAL
-            # Dynamic interpolation based on exact deep damage index:
-            # E.g. 0.55 index -> ~$5,800 - $7,400
             ratio = (combined_index - 0.46) / 0.30
-            base_min = round(4200.0 + (ratio * 2500.0), -1)
-            base_max = round(7200.0 + (ratio * 2800.0), -1)
+            base_min = round(140000.0 + (ratio * 80000.0), -2)
+            base_max = round(260000.0 + (ratio * 80000.0), -2)
         elif combined_index >= 0.22:
             tier = DamageSeverityTier.MODERATE_LOCALIZED
             ratio = (combined_index - 0.22) / 0.24
-            base_min = round(1400.0 + (ratio * 800.0), -1)
-            base_max = round(3200.0 + (ratio * 1000.0), -1)
+            base_min = round(45000.0 + (ratio * 25000.0), -2)
+            base_max = round(95000.0 + (ratio * 25000.0), -2)
         else:
             tier = DamageSeverityTier.MINOR_COSMETIC
-            base_min = 450.0
-            base_max = 1400.0
+            base_min = 15000.0
+            base_max = 45000.0
 
         benchmark_cost = round((base_min + base_max) / 2.0, -1)
 
@@ -201,7 +207,7 @@ class DamageScorer:
 
         logger.info(
             f"ResNet-18 Damage: {tier.value} (Index: {combined_index:.3f}, "
-            f"Fair Cost: ${base_min:,.0f} - ${base_max:,.0f}, Components: {detected_components})"
+            f"Fair Cost: ₹{base_min:,.0f} - ₹{base_max:,.0f}, Components: {detected_components})"
         )
 
         return tier, base_min, base_max, benchmark_cost, diagnostic

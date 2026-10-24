@@ -17,11 +17,12 @@ import {
   Award
 } from "lucide-react";
 import { INSURANCE_CATEGORIES } from "../data/mockClaims";
+import { formatRupees, formatRupeesCompact, RUPEE_SYMBOL } from "../utils/currency";
 
 export default function ReportsAnalytics({ claims = [] }) {
   const [timeRange, setTimeRange] = useState("year_to_date");
 
-  // Customer claims statistics
+  // Customer claims statistics in Indian Rupees
   const metrics = useMemo(() => {
     const total = claims.length;
     const completed = claims.filter((c) => c.status === "Completed").length;
@@ -35,10 +36,10 @@ export default function ReportsAnalytics({ claims = [] }) {
       completed,
       inProgress,
       totalPayout,
-      deductibleSatisfied: 500,
-      annualDeductible: 500,
-      coverageLimit: 100000,
-      avgSpeed: "2.1 Days",
+      deductibleSatisfied: 10000,
+      annualDeductible: 10000,
+      coverageLimit: 1500000,
+      avgSpeed: "1.9 Days",
       fastTrackPercent: total > 0 ? ((completed / total) * 100).toFixed(0) : 0
     };
   }, [claims]);
@@ -86,10 +87,10 @@ export default function ReportsAnalytics({ claims = [] }) {
 
         <div className="card" style={{ padding: "18px" }}>
           <span style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "600" }}>
-            Total Payouts Received
+            Total Payouts Received (₹)
           </span>
           <div style={{ fontSize: "24px", fontWeight: "800", color: "var(--color-success)", marginTop: "4px" }}>
-            ${metrics.totalPayout.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+            {formatRupees(metrics.totalPayout)}
           </div>
           <div style={{ fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }}>
             Disbursed directly to your account
@@ -101,7 +102,7 @@ export default function ReportsAnalytics({ claims = [] }) {
             Annual Deductible Status
           </span>
           <div style={{ fontSize: "24px", fontWeight: "800", color: "var(--color-accent)", marginTop: "4px" }}>
-            $500 / $500
+            {formatRupees(metrics.deductibleSatisfied, { includeDecimals: false })} / {formatRupees(metrics.annualDeductible, { includeDecimals: false })}
           </div>
           <div style={{ fontSize: "11px", color: "#2563EB", marginTop: "4px" }}>
             ✓ Annual deductible 100% satisfied
@@ -133,7 +134,7 @@ export default function ReportsAnalytics({ claims = [] }) {
           <div style={{ marginBottom: "16px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", marginBottom: "6px" }}>
               <span style={{ fontWeight: "600", color: "var(--color-text-main)" }}>Policy Lifetime Claims</span>
-              <span style={{ color: "var(--color-text-muted)" }}>${metrics.totalPayout.toLocaleString()} of ${metrics.coverageLimit.toLocaleString()} limit</span>
+              <span style={{ color: "var(--color-text-muted)" }}>{formatRupees(metrics.totalPayout)} of {formatRupees(metrics.coverageLimit)} limit</span>
             </div>
             <div style={{ width: "100%", height: "10px", backgroundColor: "#E2E8F0", borderRadius: "5px", overflow: "hidden" }}>
               <div style={{
