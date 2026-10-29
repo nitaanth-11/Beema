@@ -66,6 +66,9 @@ export default function App() {
   // Global search query
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Off-canvas sidebar, used only at narrow widths
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // Persist claims ledger changes
   useEffect(() => {
     localStorage.setItem("beema_claims_ledger", JSON.stringify(claims));
@@ -157,13 +160,26 @@ export default function App() {
   };
 
   return (
-    <div style={{ display: "flex", height: "100vh", overflow: "hidden", backgroundColor: "var(--color-background)" }}>
+    <div className="app-shell" style={{ display: "flex", height: "100vh", overflow: "hidden", backgroundColor: "var(--color-background)" }}>
+      {/* Dimmed backdrop behind the off-canvas sidebar (narrow screens only) */}
+      {sidebarOpen && (
+        <div
+          className="app-scrim"
+          role="button"
+          tabIndex={-1}
+          aria-label="Close navigation menu"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Persistent Enterprise Sidebar */}
       <Sidebar
+        isOpen={sidebarOpen}
         activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
           if (tab === "new_claim") setSelectedClaimId(null);
+          setSidebarOpen(false);
         }}
         currentCategory={selectedCategory}
         onChangeCategory={handleChangeCategory}
@@ -183,6 +199,8 @@ export default function App() {
           activeTabTitle={TAB_TITLES[activeTab] || "My Claims Hub"}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
+          sidebarOpen={sidebarOpen}
+          onToggleSidebar={() => setSidebarOpen((open) => !open)}
         />
 
         {/* Dynamic Page Router */}

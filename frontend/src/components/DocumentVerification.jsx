@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   FileCheck2,
   FileText,
@@ -75,6 +75,36 @@ export default function DocumentVerification({ currentCategory, claims = [] }) {
   const [newDocTitle, setNewDocTitle] = useState("");
   const [newDocCategory, setNewDocCategory] = useState("Receipt");
   const [notification, setNotification] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const MAX_FILE_BYTES = 25 * 1024 * 1024;
+  const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
+
+  const formatFileSize = (bytes) =>
+    bytes >= 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(1)} MB` : `${Math.max(1, Math.round(bytes / 1024))} KB`;
+
+  const closeUploadModal = () => {
+    setUploadModalOpen(false);
+    setSelectedFile(null);
+    setNewDocTitle("");
+    setIsDragging(false);
+  };
+
+  const handleFileChosen = (file) => {
+    if (!file) return;
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      notify("Unsupported file type. Please choose a PDF, JPG or PNG.");
+      return;
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      notify("File is larger than 25 MB.");
+      return;
+    }
+    setSelectedFile(file);
+    setNewDocTitle(file.name);
+  };
 
   const notify = (msg) => {
     setNotification(msg);
@@ -87,12 +117,14 @@ export default function DocumentVerification({ currentCategory, claims = [] }) {
     e.preventDefault();
     if (!newDocTitle.trim()) return;
 
+    const isImage = selectedFile?.type.startsWith("image/");
     const newDoc = {
       id: `CLM-${categoryInfo.id.toUpperCase()}-DOC-${Date.now()}`,
       name: newDocTitle.trim(),
       type: newDocCategory,
       status: "Verified",
-      size: "2.1 MB",
+      size: selectedFile ? formatFileSize(selectedFile.size) : "2.1 MB",
+      previewUrl: isImage ? URL.createObjectURL(selectedFile) : undefined,
       claimId: categoryClaims[0]?.id || "CLM-IND-2026-081",
       claimantName: categoryClaims[0]?.claimantName || "Rajesh Malhotra",
       claimedAmount: 145000.00,
@@ -115,8 +147,7 @@ export default function DocumentVerification({ currentCategory, claims = [] }) {
 
     setDocumentsList([newDoc, ...documentsList]);
     setSelectedDocId(newDoc.id);
-    setUploadModalOpen(false);
-    setNewDocTitle("");
+    closeUploadModal();
     notify(`Document "${newDoc.name}" uploaded and verified by Beema AI OCR.`);
   };
 
@@ -186,7 +217,7 @@ export default function DocumentVerification({ currentCategory, claims = [] }) {
                 </h3>
               </div>
               <button
-                onClick={() => setUploadModalOpen(false)}
+                onClick={closeUploadModal}
                 style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px" }}
               >
                 &times;
@@ -221,17 +252,48 @@ export default function DocumentVerification({ currentCategory, claims = [] }) {
                 </select>
               </div>
 
-              <div style={{
-                border: "2px dashed #CBD5E1",
-                borderRadius: "8px",
-                padding: "24px",
-                textAlign: "center",
-                backgroundColor: "#F8FAFC",
-                marginBottom: "16px"
-              }}>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+                style={{ display: "none" }}
+                onChange={(e) => {
+                  handleFileChosen(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
+              <div
+                role="button"
+                tabIndex={0}
+                onClick={() => fileInputRef.current?.click()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    fileInputRef.current?.click();
+                  }
+                }}
+                onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                onDragLeave={() => setIsDragging(false)}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  handleFileChosen(e.dataTransfer.files?.[0]);
+                }}
+                style={{
+                  border: `2px dashed ${isDragging ? "var(--color-accent)" : "#CBD5E1"}`,
+                  borderRadius: "8px",
+                  padding: "24px",
+                  textAlign: "center",
+                  backgroundColor: isDragging ? "#EFF6FF" : "#F8FAFC",
+                  marginBottom: "16px",
+                  cursor: "pointer"
+                }}
+              >
                 <Upload size={28} color="#64748B" style={{ margin: "0 auto 8px auto" }} />
                 <div style={{ fontSize: "13px", fontWeight: "600", color: "var(--color-primary)" }}>
-                  Drop files here or click to choose from your device
+                  {selectedFile
+                    ? `${selectedFile.name} (${formatFileSize(selectedFile.size)}) - click to change`
+                    : "Drop files here or click to choose from your device"}
                 </div>
                 <div style={{ fontSize: "11px", color: "var(--color-text-muted)", marginTop: "4px" }}>
                   PDF, JPG, PNG up to 25 MB. Beema AI scans &amp; verifies instantly.
@@ -242,7 +304,7 @@ export default function DocumentVerification({ currentCategory, claims = [] }) {
                 <button
                   type="button"
                   className="btn btn-outline"
-                  onClick={() => setUploadModalOpen(false)}
+                  onClick={closeUploadModal}
                 >
                   Cancel
                 </button>

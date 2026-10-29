@@ -24,7 +24,7 @@ wheels/
 *.egg
 
 # Data directories (CRITICAL: Never commit datasets to GitHub)
-data/
+/data/
 data/raw/
 data/cleaned/
 data/model_ready/

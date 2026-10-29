@@ -51,7 +51,8 @@ export default function Sidebar({
   onChangeCategory,
   onNavigateHome,
   currentPersona,
-  claimsCount = 0
+  claimsCount = 0,
+  isOpen = false
 }) {
   const categoryInfo = INSURANCE_CATEGORIES.find((c) => c.id === currentCategory) || INSURANCE_CATEGORIES[0];
   const CategoryIcon = ICON_MAP[categoryInfo.icon] || Car;
@@ -69,7 +70,7 @@ export default function Sidebar({
   ];
 
   return (
-    <aside style={{
+    <aside className="app-sidebar" data-open={isOpen} style={{
       width: "var(--sidebar-width)",
       backgroundColor: "var(--color-primary)",
       color: "#FFFFFF",

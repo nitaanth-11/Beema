@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Bell, HelpCircle, ChevronRight, User, RefreshCw, Shield, Phone, FileText, Home, Building2, CheckCircle2 } from "lucide-react";
+import { Search, Bell, HelpCircle, ChevronRight, User, RefreshCw, Shield, Phone, FileText, Home, Building2, CheckCircle2, Menu } from "lucide-react";
 import { INSURANCE_CATEGORIES } from "../data/mockClaims";
 
 export default function TopNav({
@@ -9,7 +9,9 @@ export default function TopNav({
   currentPersona,
   activeTabTitle = "My Claims Hub",
   searchQuery,
-  onSearchChange
+  onSearchChange,
+  onToggleSidebar,
+  sidebarOpen = false
 }) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -56,7 +58,16 @@ export default function TopNav({
       zIndex: 20
     }}>
       {/* Left: Breadcrumbs & Customer Context */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "13px" }}>
+      <div className="topnav__left" style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "13px" }}>
+        <button
+          type="button"
+          className="app-nav-toggle"
+          onClick={onToggleSidebar}
+          aria-label="Open navigation menu"
+          aria-expanded={sidebarOpen}
+        >
+          <Menu size={18} />
+        </button>
         <button
           onClick={onNavigateHome}
           style={{
@@ -75,8 +86,8 @@ export default function TopNav({
           <Home size={14} color="var(--color-accent)" />
           <span>Home</span>
         </button>
-        <ChevronRight size={14} color="var(--color-text-light)" />
-        <span style={{
+        <ChevronRight className="topnav__optional" size={14} color="var(--color-text-light)" />
+        <span className="topnav__optional" style={{
           fontSize: "11px",
           fontWeight: "700",
           backgroundColor: currentPersona?.segment === "organisation" ? "#F3E8FF" : "#EFF6FF",
@@ -92,7 +103,7 @@ export default function TopNav({
         <ChevronRight size={14} color="var(--color-text-light)" />
         <span style={{ fontWeight: "700", color: "var(--color-primary)" }}>{activeTabTitle}</span>
 
-        <span style={{
+        <span className="topnav__optional" style={{
           marginLeft: "8px",
           fontSize: "11px",
           backgroundColor: "#F0FDF4",
@@ -111,7 +122,7 @@ export default function TopNav({
         {/* Switch Persona / Home Button */}
         <button
           onClick={onNavigateHome}
-          className="btn btn-secondary btn-sm"
+          className="btn btn-secondary btn-sm topnav__optional"
           style={{
             fontSize: "12px",
             gap: "6px",
@@ -128,7 +139,7 @@ export default function TopNav({
         </button>
 
         {/* Customer Search Bar */}
-        <div style={{ position: "relative", width: "240px" }}>
+        <div className="topnav__search" style={{ position: "relative", width: "240px" }}>
           <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--color-text-muted)" }} />
           <input
             type="text"
@@ -150,7 +161,7 @@ export default function TopNav({
         {/* Change Category Action */}
         <button
           onClick={onChangeCategory}
-          className="btn btn-secondary btn-sm"
+          className="btn btn-secondary btn-sm topnav__optional"
           style={{ fontSize: "12px", gap: "5px" }}
           title="Switch Insurance Line"
         >
