@@ -5,7 +5,10 @@ Extracts full text, geometric header regions (letterhead blocks), and document m
 import base64
 import re
 from typing import Dict, Any, Tuple, Optional
-import fitz  # PyMuPDF
+try:
+    import pymupdf as fitz
+except ImportError:
+    import fitz
 from src.utils.logger import get_logger
 
 logger = get_logger("DocumentExtractor")

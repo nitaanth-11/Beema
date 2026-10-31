@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, Response
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, Any, Optional
 from pydantic import BaseModel
@@ -22,7 +22,6 @@ from src.utils.logger import get_logger
 
 from contextlib import asynccontextmanager
 import base64
-from fastapi import File, UploadFile, Form
 
 from src.vision.schemas import (
     VisualClaimRequest,
@@ -93,6 +92,32 @@ def get_service() -> LayaInsuranceDecisionService:
         model = LayaInsuranceModel()
         decision_service = LayaInsuranceDecisionService(laya_model=model)
     return decision_service
+
+@app.api_route("/", methods=["GET", "HEAD"], tags=["System Health"])
+def root_status() -> Dict[str, Any]:
+    """
+    Root status probe confirming the Beema FastAPI Decision Gateway is online.
+    """
+    return {
+        "name": "Beema - AI-Powered Insurance Claims Investigation System",
+        "status": "online",
+        "version": "1.0.0",
+        "docs_url": "/docs",
+        "health_url": "/health",
+        "endpoints": {
+            "adjudicate": "/predict",
+            "lakehouse_adjudicate": "/predict/lakehouse",
+            "visual_assessment": "/predict/visual-claim",
+            "visual_upload": "/predict/visual-upload",
+            "deep_damage_estimate": "/predict/deep-damage-estimate",
+            "document_verification": "/predict/verify-document",
+            "document_upload": "/predict/verify-document-upload"
+        }
+    }
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return Response(status_code=204)
 
 @app.get("/health", response_model=HealthResponse, tags=["System Health"])
 def health_check(service: LayaInsuranceDecisionService = Depends(get_service)) -> HealthResponse:
