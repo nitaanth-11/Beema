@@ -1,16 +1,34 @@
-# React + Vite
+# Beema Frontend - Policyholder & Underwriter Portal
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+The interactive React + Vite frontend for **Beema - AI-Powered Insurance Claims Investigation System**.
 
-Currently, two official plugins are available:
+## Features
+- **Visual Claim Intake & Forensic Assessment**: Damage scoring, storm vs. tool trauma detection, and photo fraud screening.
+- **LAYA Decision Engine Dashboard**: Real-time policyholder persona simulation and automated payout estimation.
+- **Offline Demo Mode**: Automatically operates with mock data if the backend FastAPI service is unreachable.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Local Development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-## Expanding the Oxlint configuration
+The portal runs by default at `http://localhost:5173`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+---
+
+## Deploy to Render
+
+This frontend is automatically provisioned when deploying the project via **Render Blueprint** (`render.yaml`).
+
+### Deploying with Render Blueprint
+1. Connect your repository in [Render Dashboard](https://dashboard.render.com/blueprints).
+2. Select **New Blueprint Instance**.
+3. Render reads `render.yaml` and spins up both:
+   - `beema-api` (FastAPI backend web service)
+   - `beema-portal` (Vite React static site)
+4. The blueprint automatically links `VITE_API_BASE_URL` from `beema-api` to `beema-portal`.

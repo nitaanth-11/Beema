@@ -192,4 +192,29 @@ The **Visual Insurance Agent** (`src/vision/`) performs fast, instance-based for
   - `POST /predict/visual-claim` (JSON payload with image path or Base64)
   - `POST /predict/visual-upload` (Multipart image file upload)
 
+---
+
+## 9. Full-Stack Deployment on Render
+
+Both the FastAPI Decision Engine backend and the React + Vite frontend are fully configured for 1-click infrastructure deployment via **Render Blueprint** (`render.yaml`):
+
+### Architecture on Render
+1. **`beema-api` (Python 3.11 Web Service)**:
+   - Command: `pip install -r requirements.txt && uvicorn src.api.main:app --host 0.0.0.0 --port $PORT`
+   - Healthcheck: `/health`
+   - Serves FastAPI, LAYA Decision Engine, Visual Forensic Agent, and PyMuPDF document validation.
+2. **`beema-portal` (Static Site)**:
+   - Build: `cd frontend && npm install && npm run build`
+   - Publish directory: `frontend/dist`
+   - SPA Routing: Automatic fallback rewrites `/*` to `/index.html`
+   - Environment: Automatically linked to `beema-api` host via `VITE_API_BASE_URL`.
+
+### Deploying to Render
+1. Push your repository to GitHub.
+2. In the [Render Dashboard](https://dashboard.render.com/blueprints), click **New +** > **Blueprint**.
+3. Connect the repository. Render will automatically detect `render.yaml`.
+4. Click **Apply** to deploy both the backend API and frontend portal together.
+
+
+
 
