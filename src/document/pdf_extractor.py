@@ -8,7 +8,10 @@ from typing import Dict, Any, Tuple, Optional
 try:
     import pymupdf as fitz
 except ImportError:
-    import fitz
+    try:
+        import fitz
+    except ImportError:
+        fitz = None
 from src.utils.logger import get_logger
 
 logger = get_logger("DocumentExtractor")
