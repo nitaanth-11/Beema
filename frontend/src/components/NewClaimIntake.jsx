@@ -656,13 +656,13 @@ export default function NewClaimIntake({
                 {activeCategoryInfo.name}
               </div>
               <div style={{ fontSize: "11px", color: "var(--color-text-muted)" }}>
-                {createdClaim.segment === "organisation" ? "🏢 Organisation" : "👤 Individual"}
+                {createdClaim.segment === "organisation" ? "Organisation" : "Individual"}
               </div>
             </div>
             <div>
               <span style={{ fontSize: "11px", color: "var(--color-text-muted)", textTransform: "uppercase", fontWeight: "700" }}>LAYA AI Classification</span>
               <div style={{ fontSize: "15px", fontWeight: "700", color: "#16A34A", marginTop: "2px" }}>
-                ✓ Fast-Track Approved
+                Fast-Track Approved
               </div>
               <div style={{ fontSize: "11px", color: "#15803D" }}>
                 Risk Score: 0.08 (92% Clean)
@@ -1132,7 +1132,7 @@ export default function NewClaimIntake({
 
                     <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                       <span className={doc.isVerified ? "badge badge-success" : "badge badge-info"} style={{ fontSize: "11px" }}>
-                        {doc.isVerified ? "✓ Verified Authentic" : "Auditing..."}
+                        {doc.isVerified ? "Verified Authentic" : "Auditing..."}
                       </span>
                       <button
                         type="button"
@@ -1238,7 +1238,7 @@ export default function NewClaimIntake({
                         </button>
                       </div>
                       <div style={{ fontSize: "11px", color: "#16A34A", fontWeight: "700" }}>
-                        ✓ {img.cvSeverity}
+                        <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}><Check size={12} strokeWidth={3} /> {img.cvSeverity}</span>
                       </div>
                       <div style={{ fontSize: "12px", fontWeight: "800", color: "var(--color-primary)", marginTop: "2px" }}>
                         Fair Cost: {img.estimatedFairCost}

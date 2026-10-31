@@ -97,7 +97,7 @@ export default function ClaimHistory({ currentCategory, claims = [], onSelectCla
                     color: claim.status === "Completed" ? "var(--color-success)" : "var(--color-accent)",
                     fontSize: "12px"
                   }}>
-                    {claim.status === "Completed" ? "✓ Fast-Track Verified" : "AI In-Progress"}
+                    {claim.status === "Completed" ? "Fast-Track Verified" : "AI In-Progress"}
                   </span>
                 </td>
                 <td>

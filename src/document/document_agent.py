@@ -58,6 +58,41 @@ class DocumentVerificationAgent:
                 header_text = extraction_res.get("header_text", "")
                 page_count = extraction_res.get("page_count", 1)
 
+                # Forensic audit for AI-generated synthetic document images (Midjourney, DALL-E, etc.)
+                ext = file_name.split(".")[-1].lower() if "." in file_name else "pdf"
+                if ext in ["png", "jpg", "jpeg", "webp"]:
+                    try:
+                        import io
+                        from PIL import Image
+                        from src.vision.synthetic_detector import SyntheticImageDetector
+                        doc_img = Image.open(io.BytesIO(doc_bytes))
+                        is_syn, syn_conf, syn_flags, syn_exp = SyntheticImageDetector.detect_synthetic(
+                            doc_img, contextual_text=full_text
+                        )
+                        if is_syn:
+                            logger.warning(f"Synthetic AI-generated document detected: {syn_flags}")
+                            return DocumentVerificationResponse(
+                                status="success",
+                                is_genuine=False,
+                                authenticity_score=round(max(0.02, 1.0 - syn_conf), 2),
+                                letterhead_detected=False,
+                                letterhead_organization="Synthetic AI Generation (Fabricated)",
+                                authority_type="AI Generator / Diffusion Model",
+                                category_alignment="REJECTED_SYNTHETIC_AI_DOCUMENT",
+                                report_or_invoice_id="FABRICATED-AI",
+                                extracted_amount=None,
+                                officer_or_physician_id=None,
+                                incident_date_found=None,
+                                verdict="REJECTED_SYNTHETIC_AI_DOCUMENT",
+                                verdict_badge="❌ AI-Generated Fake Document",
+                                explanation=f"Digital forensics detected AI-generated synthetic document forgery: {syn_exp}",
+                                key_evidence_markers=syn_flags,
+                                page_count=page_count,
+                                file_name=file_name
+                            )
+                    except Exception as img_err:
+                        logger.debug(f"Synthetic document image check skipped: {img_err}")
+
             # Analyze Letterhead & Official Authority
             analysis = LetterheadVerifier.analyze_document(
                 full_text=full_text,

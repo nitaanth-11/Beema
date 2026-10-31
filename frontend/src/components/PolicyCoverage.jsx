@@ -53,9 +53,9 @@ export default function PolicyCoverage({ currentCategory }) {
   const getClauseBadge = (status) => {
     switch (status) {
       case "Supported":
-        return <span className="badge badge-success">✓ Fully Covered</span>;
+        return <span className="badge badge-success">Fully Covered</span>;
       case "Excluded":
-        return <span className="badge badge-error">✕ Policy Exclusion</span>;
+        return <span className="badge badge-error">Policy Exclusion</span>;
       default:
         return <span className="badge badge-warning">Subject to Deductible</span>;
     }
@@ -285,7 +285,7 @@ export default function PolicyCoverage({ currentCategory }) {
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "11px", color: "var(--color-text-muted)" }}>
                       <span>Policy Document Reference: Master_Policy_{activePolicy.id}.pdf</span>
                       <span style={{ color: clause.status === "Supported" ? "var(--color-success)" : "var(--color-error)", fontWeight: "600" }}>
-                        {clause.status === "Supported" ? "✓ Covered Benefit" : "✕ Standard Policy Exclusion"}
+                        {clause.status === "Supported" ? "Covered Benefit" : "Standard Policy Exclusion"}
                       </span>
                     </div>
                   </div>

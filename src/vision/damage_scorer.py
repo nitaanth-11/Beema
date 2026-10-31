@@ -1,5 +1,8 @@
 import os
-import torch
+try:
+    import torch
+except ImportError:
+    torch = None
 try:
     import torchvision.models as models
     import torchvision.transforms as T
@@ -54,7 +57,7 @@ class DamageScorer:
     def _get_model(cls):
         """Lazy loader for the ResNet-18 deep visual feature extractor."""
         if cls._model is None:
-            if models is None or T is None:
+            if torch is None or models is None or T is None:
                 logger.warning("torchvision is unavailable; using robust visual heuristic fallback.")
                 cls._model = False
                 return cls._model, cls._transform
@@ -97,7 +100,7 @@ class DamageScorer:
         detected_components: List[str] = []
         deep_damage_index = 0.0
 
-        if model:
+        if model and torch is not None:
             try:
                 # Preprocess image tensor
                 rgb_img = img.convert("RGB")

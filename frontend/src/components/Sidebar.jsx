@@ -182,7 +182,7 @@ export default function Sidebar({
               {categoryInfo.name}
             </div>
             <div style={{ fontSize: "10px", color: categoryInfo.segment === "organisation" ? "#C4B5FD" : "#86EFAC", fontWeight: "600" }}>
-              {categoryInfo.segment === "organisation" ? "🏢 Organisation" : "👤 Individual"}
+              {categoryInfo.segment === "organisation" ? "Organisation" : "Individual"}
             </div>
           </div>
         </div>
@@ -219,7 +219,7 @@ export default function Sidebar({
             {currentPersona?.name || "Rajesh Malhotra"}
           </div>
           <div style={{ fontSize: "10px", color: currentPersona?.segment === "organisation" ? "#E9D5FF" : "#BFDBFE" }}>
-            {currentPersona?.segment === "organisation" ? "🏢 Corporate Risk Officer" : "👤 Retail Policyholder"}
+            {currentPersona?.segment === "organisation" ? "Corporate Risk Officer" : "Retail Policyholder"}
           </div>
         </div>
       </div>

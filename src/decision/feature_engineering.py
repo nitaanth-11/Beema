@@ -1,7 +1,10 @@
 from typing import Dict, Any, Optional
 from datetime import datetime, date
 import math
-import polars as pl
+try:
+    import polars as pl
+except ImportError:
+    pl = None
 from src.config import DELTA_TABLE_MODEL_READY
 from src.decision.schemas import ClaimInputSchema
 from src.utils.logger import get_logger
@@ -81,6 +84,9 @@ class DecisionFeatureTransformer:
         Fetches an existing claim record from the Gold Feature Store or Silver Cleaned table.
         """
         table_path = str(DELTA_TABLE_MODEL_READY).replace("\\", "/")
+        if pl is None:
+            logger.warning("Polars is not installed; lakehouse feature lookup unavailable in serverless mode.")
+            return None
         try:
             df = pl.read_delta(table_path)
             matching = df.filter(pl.col("claim_id") == claim_id.strip())

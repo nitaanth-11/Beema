@@ -272,7 +272,7 @@ export default function WorkspaceDashboard({
               padding: "2px 8px",
               borderRadius: "4px"
             }}>
-              {currentPersona.segment === "organisation" ? "🏢 Organisation Persona" : "👤 Individual Persona"}
+              {currentPersona.segment === "organisation" ? "Organisation Persona" : "Individual Persona"}
             </span>
             <span style={{ fontSize: "13px", fontWeight: "700", color: "var(--color-primary)" }}>
               {currentPersona.name}
@@ -749,7 +749,7 @@ export default function WorkspaceDashboard({
                           color: claimSegment === "organisation" ? "#6D28D9" : "#047857",
                           border: `1px solid ${claimSegment === "organisation" ? "#DDD6FE" : "#A7F3D0"}`
                         }}>
-                          {claimSegment === "organisation" ? "🏢 Organisation" : "👤 Individual"}
+                          {claimSegment === "organisation" ? "Organisation" : "Individual"}
                         </span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: "600", color: "var(--color-primary)" }}>

@@ -168,7 +168,7 @@ export default function Settings() {
               style={{ fontSize: "13px", fontWeight: "600", marginBottom: "10px" }}
             />
             <span style={{ fontSize: "11px", color: "var(--color-success)", fontWeight: "600" }}>
-              ✓ Verified for Instant Fast-Track ACH Transfer
+              Verified for Instant Fast-Track ACH Transfer
             </span>
           </div>
 

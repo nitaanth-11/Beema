@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, Response
+from fastapi import FastAPI, HTTPException, Depends, File, UploadFile, Form, Response, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Dict, Any, Optional
 from pydantic import BaseModel
@@ -86,6 +86,8 @@ def get_document_agent() -> DocumentVerificationAgent:
         document_agent = DocumentVerificationAgent()
     return document_agent
 
+router = APIRouter()
+
 def get_service() -> LayaInsuranceDecisionService:
     global decision_service
     if decision_service is None:
@@ -93,7 +95,7 @@ def get_service() -> LayaInsuranceDecisionService:
         decision_service = LayaInsuranceDecisionService(laya_model=model)
     return decision_service
 
-@app.api_route("/", methods=["GET", "HEAD"], tags=["System Health"])
+@router.api_route("/", methods=["GET", "HEAD"], tags=["System Health"])
 def root_status() -> Dict[str, Any]:
     """
     Root status probe confirming the Beema FastAPI Decision Gateway is online.
@@ -115,11 +117,11 @@ def root_status() -> Dict[str, Any]:
         }
     }
 
-@app.get("/favicon.ico", include_in_schema=False)
+@router.get("/favicon.ico", include_in_schema=False)
 def favicon():
     return Response(status_code=204)
 
-@app.get("/health", response_model=HealthResponse, tags=["System Health"])
+@router.get("/health", response_model=HealthResponse, tags=["System Health"])
 def health_check(service: LayaInsuranceDecisionService = Depends(get_service)) -> HealthResponse:
     """
     Returns deployment status, loaded model checkpoints, and Delta Lake feature readiness.
@@ -136,7 +138,7 @@ def health_check(service: LayaInsuranceDecisionService = Depends(get_service)) -
         timestamp=get_utc_timestamp()
     )
 
-@app.post("/predict", response_model=DecisionResponse, tags=["Claims Adjudication"])
+@router.post("/predict", response_model=DecisionResponse, tags=["Claims Adjudication"])
 def predict_claim(
     claim: ClaimInputSchema,
     service: LayaInsuranceDecisionService = Depends(get_service)
@@ -155,7 +157,7 @@ def predict_claim(
         logger.error(f"Error evaluating claim {claim.claim_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/predict/lakehouse", response_model=DecisionResponse, tags=["Claims Adjudication"])
+@router.post("/predict/lakehouse", response_model=DecisionResponse, tags=["Claims Adjudication"])
 def predict_from_lakehouse(
     req: LakehouseClaimRequest,
     service: LayaInsuranceDecisionService = Depends(get_service)
@@ -179,7 +181,7 @@ class DeepDamageAnalysisRequest(BaseModel):
     description: str = ""
     claimed_amount: float = 0.0
 
-@app.post("/predict/deep-damage-estimate", tags=["Visual Damage Agent"])
+@router.post("/predict/deep-damage-estimate", tags=["Visual Damage Agent"])
 def predict_deep_damage_estimate(req: DeepDamageAnalysisRequest):
     """
     Direct Deep Learning Damage & Repair Cost Estimator using PyTorch ResNet-18.
@@ -213,7 +215,7 @@ def predict_deep_damage_estimate(req: DeepDamageAnalysisRequest):
         logger.error(f"Error in deep damage estimation: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/predict/visual-claim", response_model=VisualAssessmentResponse, tags=["Visual Damage Agent"])
+@router.post("/predict/visual-claim", response_model=VisualAssessmentResponse, tags=["Visual Damage Agent"])
 def predict_visual_claim(
     req: VisualClaimRequest,
     agent: VisualInsuranceAgent = Depends(get_visual_agent)
@@ -232,7 +234,7 @@ def predict_visual_claim(
         logger.error(f"Error during visual claim assessment: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/predict/visual-upload", response_model=VisualAssessmentResponse, tags=["Visual Damage Agent"])
+@router.post("/predict/visual-upload", response_model=VisualAssessmentResponse, tags=["Visual Damage Agent"])
 async def predict_visual_upload(
     claimed_amount: float = Form(..., description="Compensation demanded by claimant"),
     claim_id: str = Form("CLM-UPLOAD-001"),
@@ -261,7 +263,7 @@ async def predict_visual_upload(
         logger.error(f"Error processing visual upload: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/predict/verify-document", response_model=DocumentVerificationResponse, tags=["Document Verification Agent"])
+@router.post("/predict/verify-document", response_model=DocumentVerificationResponse, tags=["Document Verification Agent"])
 def verify_document(
     req: DocumentVerificationRequest,
     agent: DocumentVerificationAgent = Depends(get_document_agent)
@@ -279,7 +281,7 @@ def verify_document(
         logger.error(f"Error in document verification: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/predict/verify-document-upload", response_model=DocumentVerificationResponse, tags=["Document Verification Agent"])
+@router.post("/predict/verify-document-upload", response_model=DocumentVerificationResponse, tags=["Document Verification Agent"])
 async def verify_document_upload(
     file: UploadFile = File(..., description="Uploaded document (PDF, TXT, PNG, JPG)"),
     policy_category: str = Form("motor", description="Insurance line: motor, health, property, life, travel, commercial"),
@@ -307,3 +309,6 @@ async def verify_document_upload(
         logger.error(f"Error in document upload verification: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# Dual router mounting for root and /api prefixes
+app.include_router(router)
+app.include_router(router, prefix="/api")

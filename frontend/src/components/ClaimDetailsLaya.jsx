@@ -327,7 +327,7 @@ export default function ClaimDetailsLaya({
                 color: claim.segment === "organisation" ? "#6D28D9" : "#047857",
                 border: `1px solid ${claim.segment === "organisation" ? "#DDD6FE" : "#A7F3D0"}`
               }}>
-                {claim.segment === "organisation" ? "🏢 Organisation" : "👤 Individual"}
+                {claim.segment === "organisation" ? "Organisation" : "Individual"}
               </span>
               <span className={`badge ${claim.status === "Completed" ? "badge-success" : (claim.status === "Awaiting documents" ? "badge-warning" : "badge-info")}`}>
                 {claim.status === "Completed" ? "Approved & Paid" : claim.status}
@@ -387,7 +387,7 @@ export default function ClaimDetailsLaya({
             fontSize: "12px",
             fontWeight: "700"
           }}>
-            ✓
+            <Check size={14} strokeWidth={3} />
           </div>
           <div>
             <div style={{ fontSize: "12px", fontWeight: "700", color: "var(--color-primary)" }}>1. Claim Submitted</div>
@@ -411,7 +411,7 @@ export default function ClaimDetailsLaya({
             fontSize: "12px",
             fontWeight: "700"
           }}>
-            ✓
+            <Check size={14} strokeWidth={3} />
           </div>
           <div>
             <div style={{ fontSize: "12px", fontWeight: "700", color: "var(--color-primary)" }}>2. AI Evidence Scan</div>
@@ -435,7 +435,7 @@ export default function ClaimDetailsLaya({
             fontSize: "12px",
             fontWeight: "700"
           }}>
-            {claim.status === "Awaiting documents" ? "!" : "✓"}
+            {claim.status === "Awaiting documents" ? "!" : <Check size={14} strokeWidth={3} />}
           </div>
           <div>
             <div style={{ fontSize: "12px", fontWeight: "700", color: "var(--color-primary)" }}>3. LAYA Decision</div>
@@ -461,7 +461,7 @@ export default function ClaimDetailsLaya({
             fontSize: "12px",
             fontWeight: "700"
           }}>
-            {claim.status === "Completed" ? "✓" : "4"}
+            {claim.status === "Completed" ? <Check size={14} strokeWidth={3} /> : "4"}
           </div>
           <div>
             <div style={{ fontSize: "12px", fontWeight: "700", color: claim.status === "Completed" ? "var(--color-primary)" : "var(--color-text-muted)" }}>
@@ -658,7 +658,7 @@ export default function ClaimDetailsLaya({
                     </div>
                   </div>
                   <span className="badge badge-success" style={{ fontSize: "11px" }}>
-                    ✓ Damage &amp; Cost Matched
+                    Damage &amp; Cost Matched
                   </span>
                 </div>
 

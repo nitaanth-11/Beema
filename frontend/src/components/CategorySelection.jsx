@@ -301,7 +301,7 @@ export default function CategorySelection({ onSelectCategory }) {
                         color: cat.segment === "organisation" ? "#6D28D9" : "#047857",
                         border: `1px solid ${cat.segment === "organisation" ? "#DDD6FE" : "#A7F3D0"}`
                       }}>
-                        {cat.segment === "organisation" ? "🏢 Organisation" : "👤 Individual"}
+                        {cat.segment === "organisation" ? "Organisation" : "Individual"}
                       </span>
 
                       <div style={{

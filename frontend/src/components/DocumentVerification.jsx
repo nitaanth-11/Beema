@@ -489,13 +489,13 @@ export default function DocumentVerification({ currentCategory, claims = [] }) {
                   <div>DATE_OF_ISSUE: {selectedDoc.incidentDate}</div>
                   <div>ITEMIZED_TOTAL: {selectedDoc.extractedFields[0]?.docValue}</div>
                   <div style={{ marginTop: "14px", color: "#166534", fontSize: "11px" }}>
-                    ✓ LAYA AI OCR Result: 100% legibility. Itemized parts & labor corroborated with policy terms.
+                    LAYA AI OCR Result: 100% legibility. Itemized parts & labor corroborated with policy terms.
                   </div>
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "space-between", marginTop: "12px", fontSize: "11px", color: "var(--color-text-muted)" }}>
                   <span>Security: Encrypted Document Vault</span>
-                  <span style={{ color: "var(--color-success)", fontWeight: "600" }}>✓ Integrity Verified</span>
+                  <span style={{ color: "var(--color-success)", fontWeight: "600" }}>Integrity Verified</span>
                 </div>
               </div>
 
@@ -506,7 +506,7 @@ export default function DocumentVerification({ currentCategory, claims = [] }) {
                     How Beema Read Your Document
                   </h3>
                   <span style={{ fontSize: "11px", color: "var(--color-success)", fontWeight: "600" }}>
-                    ✓ Verified
+                    Verified
                   </span>
                 </div>
 

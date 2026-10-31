@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import HomePage from "./components/HomePage";
 import CategorySelection from "./components/CategorySelection";
-import Sidebar from "./components/Sidebar";
-import TopNav from "./components/TopNav";
+import HorizontalNavbar from "./components/HorizontalNavbar";
 import WorkspaceDashboard from "./components/WorkspaceDashboard";
 import NewClaimIntake from "./components/NewClaimIntake";
 import ClaimDetailsLaya from "./components/ClaimDetailsLaya";
@@ -65,9 +64,6 @@ export default function App() {
 
   // Global search query
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Off-canvas sidebar, used only at narrow widths
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Persist claims ledger changes
   useEffect(() => {
@@ -146,140 +142,120 @@ export default function App() {
     return <HomePage onProceedWithPersona={handleProceedWithPersona} />;
   }
 
-  // Titles for TopNav breadcrumb (Customer Portal POV)
-  const TAB_TITLES = {
-    overview: "My Claims Hub",
-    all_claims: "My Claims & Tracking",
-    new_claim: "File a New Claim",
-    laya: "LAYA AI Decision Status",
-    documents: "My Documents & Receipts",
-    policy: "My Policy & Coverage",
-    history: "Past Claims & Payouts",
-    analytics: "Coverage & Usage Summary",
-    settings: "My Adjuster & Support"
-  };
-
   return (
-    <div className="app-shell" style={{ display: "flex", height: "100vh", overflow: "hidden", backgroundColor: "var(--color-background)" }}>
-      {/* Dimmed backdrop behind the off-canvas sidebar (narrow screens only) */}
-      {sidebarOpen && (
-        <div
-          className="app-scrim"
-          role="button"
-          tabIndex={-1}
-          aria-label="Close navigation menu"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Persistent Enterprise Sidebar */}
-      <Sidebar
-        isOpen={sidebarOpen}
+    <div
+      className="app-shell"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        minHeight: "100vh",
+        backgroundColor: "var(--color-background, #F8FAFC)",
+        color: "var(--color-text, #0F172A)"
+      }}
+    >
+      {/* Enterprise Full-Width Horizontal Header Navbar */}
+      <HorizontalNavbar
         activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
           if (tab === "new_claim") setSelectedClaimId(null);
-          setSidebarOpen(false);
         }}
         currentCategory={selectedCategory}
         onChangeCategory={handleChangeCategory}
         onNavigateHome={handleNavigateHome}
         currentPersona={currentPersona}
         claimsCount={activeCategoryClaims.length}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
-      {/* Main Content Area */}
-      <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, height: "100vh" }}>
-        {/* Top Navigation */}
-        <TopNav
-          currentCategory={selectedCategory}
-          onChangeCategory={handleChangeCategory}
-          onNavigateHome={handleNavigateHome}
-          currentPersona={currentPersona}
-          activeTabTitle={TAB_TITLES[activeTab] || "My Claims Hub"}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          sidebarOpen={sidebarOpen}
-          onToggleSidebar={() => setSidebarOpen((open) => !open)}
-        />
+      {/* Main Full-Width Content Container with Crisp Spacing & Field Separation */}
+      <main
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          maxWidth: "1480px",
+          margin: "0 auto",
+          padding: "24px 24px 48px 24px",
+          boxSizing: "border-box"
+        }}
+      >
+        {activeTab === "overview" && (
+          <WorkspaceDashboard
+            currentCategory={selectedCategory}
+            currentPersona={currentPersona}
+            onNavigateHome={handleNavigateHome}
+            claims={claims}
+            onSelectClaim={handleSelectClaim}
+            onNavigateNewClaim={() => setActiveTab("new_claim")}
+            searchQuery={searchQuery}
+          />
+        )}
 
-        {/* Dynamic Page Router */}
-        <main style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column" }}>
-          {activeTab === "overview" && (
-            <WorkspaceDashboard
-              currentCategory={selectedCategory}
-              currentPersona={currentPersona}
-              onNavigateHome={handleNavigateHome}
-              claims={claims}
-              onSelectClaim={handleSelectClaim}
-              onNavigateNewClaim={() => setActiveTab("new_claim")}
-              searchQuery={searchQuery}
-            />
-          )}
+        {activeTab === "all_claims" && (
+          <WorkspaceDashboard
+            currentCategory={selectedCategory}
+            currentPersona={currentPersona}
+            onNavigateHome={handleNavigateHome}
+            claims={claims}
+            onSelectClaim={handleSelectClaim}
+            onNavigateNewClaim={() => setActiveTab("new_claim")}
+            searchQuery={searchQuery}
+          />
+        )}
 
-          {activeTab === "all_claims" && (
-            <WorkspaceDashboard
-              currentCategory={selectedCategory}
-              currentPersona={currentPersona}
-              onNavigateHome={handleNavigateHome}
-              claims={claims}
-              onSelectClaim={handleSelectClaim}
-              onNavigateNewClaim={() => setActiveTab("new_claim")}
-              searchQuery={searchQuery}
-            />
-          )}
+        {activeTab === "new_claim" && (
+          <NewClaimIntake
+            currentCategory={selectedCategory}
+            currentPersona={currentPersona}
+            onClaimCreated={handleClaimCreated}
+            onCancel={() => setActiveTab("overview")}
+          />
+        )}
 
-          {activeTab === "new_claim" && (
-            <NewClaimIntake
-              currentCategory={selectedCategory}
-              currentPersona={currentPersona}
-              onClaimCreated={handleClaimCreated}
-              onCancel={() => setActiveTab("overview")}
-            />
-          )}
+        {activeTab === "laya" && (
+          <ClaimDetailsLaya
+            claim={activeClaim}
+            onBack={() => setActiveTab("overview")}
+            onUpdateClaim={handleUpdateClaim}
+            onNavigateDocuments={() => setActiveTab("documents")}
+            onNavigatePolicy={() => setActiveTab("policy")}
+          />
+        )}
 
-          {activeTab === "laya" && (
-            <ClaimDetailsLaya
-              claim={activeClaim}
-              onBack={() => setActiveTab("overview")}
-              onUpdateClaim={handleUpdateClaim}
-              onNavigateDocuments={() => setActiveTab("documents")}
-              onNavigatePolicy={() => setActiveTab("policy")}
-            />
-          )}
+        {activeTab === "documents" && (
+          <DocumentVerification
+            currentCategory={selectedCategory}
+            claims={activeCategoryClaims}
+          />
+        )}
 
-          {activeTab === "documents" && (
-            <DocumentVerification
-              currentCategory={selectedCategory}
-              claims={activeCategoryClaims}
-            />
-          )}
+        {activeTab === "policy" && (
+          <PolicyCoverage
+            currentCategory={selectedCategory}
+          />
+        )}
 
-          {activeTab === "policy" && (
-            <PolicyCoverage
-              currentCategory={selectedCategory}
-            />
-          )}
+        {activeTab === "history" && (
+          <ClaimHistory
+            currentCategory={selectedCategory}
+            claims={activeCategoryClaims}
+            onSelectClaim={handleSelectClaim}
+          />
+        )}
 
-          {activeTab === "history" && (
-            <ClaimHistory
-              currentCategory={selectedCategory}
-              claims={activeCategoryClaims}
-              onSelectClaim={handleSelectClaim}
-            />
-          )}
+        {activeTab === "analytics" && (
+          <ReportsAnalytics
+            claims={activeCategoryClaims}
+          />
+        )}
 
-          {activeTab === "analytics" && (
-            <ReportsAnalytics
-              claims={activeCategoryClaims}
-            />
-          )}
-
-          {activeTab === "settings" && (
-            <Settings />
-          )}
-        </main>
-      </div>
+        {activeTab === "settings" && (
+          <Settings />
+        )}
+      </main>
     </div>
   );
 }

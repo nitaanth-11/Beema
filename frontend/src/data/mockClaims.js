@@ -78,9 +78,28 @@ export const INITIAL_CLAIMS = [
     layaPriority: "High", compositeRiskScore: 71, deductible: 100000, assignedReviewer: "Karan Malhotra",
     findings: { verifiedFacts: ["Fire brigade report filed"], missingInformation: ["Inventory valuation", "Fire safety audit"], layaRecommendation: "ESCALATE_SIU" } }),
   claim({ id: "CLM-CYB-2026-202", category: "cyber_org", segment: "organisation", claimantName: "Vertex Digital Services", policyNumber: "POL-CYB-55410",
-    claimType: "Ransomware", description: "Ransomware encrypted production file servers.", claimedAmount: 2750000, status: "In Review",
-    layaPriority: "High", compositeRiskScore: 55, assignedReviewer: "Anita Rao",
-    findings: { verifiedFacts: ["Incident reported within 24h"], missingInformation: ["Forensic report"], layaRecommendation: "MANUAL_REVIEW" } }),
+    claimType: "Ransomware", description: "Ransomware encrypted production file servers with purported extortion demand.", claimedAmount: 2750000, status: "In Review",
+    layaPriority: "High", compositeRiskScore: 92, assignedReviewer: "Anita Rao",
+    evidence: {
+      documents: [
+        { name: "Incident_Investigation_Report.jpg", url: "/sample_ai_generated_report.jpg", size: "248 KB", status: "Rejected - Synthetic AI", type: "Forensic Report" }
+      ],
+      images: [
+        { url: "/sample_ai_generated_report.jpg", title: "Incident Report (Flagged as AI Generation)", isSynthetic: true }
+      ]
+    },
+    findings: {
+      verifiedFacts: ["Incident reported within 24h"],
+      missingInformation: ["Authentic certified forensic report"],
+      layaRecommendation: "REJECTED_SYNTHETIC_AI_IMAGE"
+    },
+    visualAnalysis: {
+      damageSeverityTier: "Synthetic AI Generation (Fabricated)",
+      isSynthetic: true,
+      syntheticConfidence: 0.92,
+      flags: ["LATENT_CHANNEL_OVERCORRELATION", "SYNTHETIC_PSEUDO_TYPOGRAPHY"]
+    }
+  }),
 ];
 
 export const INITIAL_POLICIES = [

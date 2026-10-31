@@ -96,7 +96,7 @@ export default function TopNav({
           borderRadius: "12px",
           padding: "1px 8px"
         }}>
-          {currentPersona?.segment === "organisation" ? "🏢 Organisation" : "👤 Individual"}
+          {currentPersona?.segment === "organisation" ? "Organisation" : "Individual"}
         </span>
         <ChevronRight size={14} color="var(--color-text-light)" />
         <span style={{ color: "var(--color-text-muted)" }}>{categoryInfo.name}</span>
@@ -315,9 +315,9 @@ export default function TopNav({
                     padding: "2px 8px",
                     borderRadius: "4px"
                   }}>
-                    {currentPersona?.segment === "organisation" ? "🏢 Organisation Persona" : "👤 Individual Persona"}
+                    {currentPersona?.segment === "organisation" ? "Organisation Persona" : "Individual Persona"}
                   </span>
-                  <span style={{ fontSize: "11px", color: "#166534", fontWeight: "700" }}>✓ Verified</span>
+                  <span style={{ fontSize: "11px", color: "#166534", fontWeight: "700" }}>Verified</span>
                 </div>
                 <div style={{ fontSize: "14px", fontWeight: "800", color: "var(--color-primary)" }}>
                   {currentPersona?.name}
