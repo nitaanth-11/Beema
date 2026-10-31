@@ -3,7 +3,7 @@ const getFormattedApiBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || "http://localhost:8000";
   if (!envUrl) return "http://localhost:8000";
   const trimmed = envUrl.trim().replace(/\/+$/, "");
-  // Prepend protocol if host was injected without scheme (e.g., Render Blueprint property: host)
+  // Prepend protocol if host was injected without scheme (e.g., Vercel environment variables)
   if (!/^https?:\/\//i.test(trimmed)) {
     return `https://${trimmed}`;
   }

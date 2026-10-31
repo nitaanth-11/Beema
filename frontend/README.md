@@ -21,14 +21,26 @@ The portal runs by default at `http://localhost:5173`.
 
 ---
 
-## Deploy to Render
+## Deploy to Vercel
 
-This frontend is automatically provisioned when deploying the project via **Render Blueprint** (`render.yaml`).
+### Option 1: Automatic Root Deployment (Recommended)
+1. Push this repository to GitHub.
+2. In the [Vercel Dashboard](https://vercel.com/new), import your repository.
+3. Keep **Root Directory** as `./` (the root `vercel.json` configures the build and SPA client routing automatically).
+4. (Optional) In **Environment Variables**, set:
+   - `VITE_API_URL`: Your live FastAPI backend endpoint. If not provided, the frontend seamlessly operates in full offline mock demo mode.
+5. Click **Deploy**.
 
-### Deploying with Render Blueprint
-1. Connect your repository in [Render Dashboard](https://dashboard.render.com/blueprints).
-2. Select **New Blueprint Instance**.
-3. Render reads `render.yaml` and spins up both:
-   - `beema-api` (FastAPI backend web service)
-   - `beema-portal` (Vite React static site)
-4. The blueprint automatically links `VITE_API_BASE_URL` from `beema-api` to `beema-portal`.
+### Option 2: Deploy from `frontend/` Subdirectory
+1. In Vercel Project Settings, set **Root Directory** to `frontend`.
+2. Vercel will automatically detect **Vite** and use `frontend/vercel.json` for SPA route rewrites.
+3. Click **Deploy**.
+
+### Option 3: Deploy via Vercel CLI
+```bash
+# Preview deployment
+npx vercel
+
+# Production deployment
+npx vercel --prod
+```

@@ -194,27 +194,26 @@ The **Visual Insurance Agent** (`src/vision/`) performs fast, instance-based for
 
 ---
 
-## 9. Full-Stack Deployment on Render
+## 9. Frontend & Vercel Deployment
 
-Both the FastAPI Decision Engine backend and the React + Vite frontend are fully configured for 1-click infrastructure deployment via **Render Blueprint** (`render.yaml`):
+The React + Vite policyholder workspace is fully configured for zero-configuration deployment to **Vercel**:
 
-### Architecture on Render
-1. **`beema-api` (Python 3.11 Web Service)**:
-   - Command: `pip install -r requirements.txt && uvicorn src.api.main:app --host 0.0.0.0 --port $PORT`
-   - Healthcheck: `/health`
-   - Serves FastAPI, LAYA Decision Engine, Visual Forensic Agent, and PyMuPDF document validation.
-2. **`beema-portal` (Static Site)**:
-   - Build: `cd frontend && npm install && npm run build`
-   - Publish directory: `frontend/dist`
-   - SPA Routing: Automatic fallback rewrites `/*` to `/index.html`
-   - Environment: Automatically linked to `beema-api` host via `VITE_API_BASE_URL`.
+### Option 1: Automatic Vercel Import (Root)
+1. Import the repository into [Vercel](https://vercel.com/new).
+2. Leave **Root Directory** as ./ (the root ercel.json configures the build and SPA client routing automatically).
+3. Under **Environment Variables** (optional):
+   - VITE_API_URL: Your live backend endpoint. If not set, the frontend operates gracefully in full offline mock demo mode.
+4. Click **Deploy**.
 
-### Deploying to Render
-1. Push your repository to GitHub.
-2. In the [Render Dashboard](https://dashboard.render.com/blueprints), click **New +** > **Blueprint**.
-3. Connect the repository. Render will automatically detect `render.yaml`.
-4. Click **Apply** to deploy both the backend API and frontend portal together.
+### Option 2: Deploy from rontend/ Subdirectory
+- In Vercel Project Settings, set **Root Directory** to rontend.
+- rontend/vercel.json provides SPA rewrite fallback to /index.html.
 
+### CLI Deployment
+`ash
+# Preview deployment
+npx vercel
 
-
-
+# Production deployment
+npx vercel --prod
+`
